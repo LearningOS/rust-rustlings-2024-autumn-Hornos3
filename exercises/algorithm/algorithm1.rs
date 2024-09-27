@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -70,13 +69,51 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
+    where T: Ord + Clone
+    {
 		//TODO
-		Self {
+		let mut ret = Self {
             length: 0,
             start: None,
             end: None,
+        };
+
+        if list_a.length == 0 && list_b.length == 0 {
+            return ret;
         }
+
+        let mut ele_a: Option<NonNull<Node<T>>> = list_a.start;
+        let mut ele_b: Option<NonNull<Node<T>>> = list_b.start;
+
+        while ele_a != None && ele_b != None {
+            unsafe {
+                if (*ele_a.unwrap().as_ptr()).val < (*ele_b.unwrap().as_ptr()).val {
+                    ret.add((*ele_a.unwrap().clone().as_ptr()).val.clone());
+                    ele_a = (*ele_a.unwrap().as_ptr()).next;
+                } else {
+                    ret.add((*ele_b.unwrap().clone().as_ptr()).val.clone());
+                    ele_b = (*ele_b.unwrap().as_ptr()).next;
+                }
+            }
+        }
+
+        if ele_a == None {
+            while ele_b != None {
+                unsafe {
+                    ret.add((*ele_b.unwrap().clone().as_ptr()).val.clone());
+                    ele_b = (*ele_b.unwrap().as_ptr()).next;
+                }
+            }
+        } else {
+            while ele_a != None {
+                unsafe {
+                    ret.add((*ele_a.unwrap().clone().as_ptr()).val.clone());
+                    ele_a = (*ele_a.unwrap().as_ptr()).next;
+                }
+            }
+        }
+
+        ret
 	}
 }
 

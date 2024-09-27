@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,22 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+
+        let mut ptr = self.items.len() - 1;
+
+        if self.items.len() == 2 { self.count += 1; return; }
+
+        for mut i in (0..self.items.len()).rev() {
+            while i > 1 {
+                if (self.comparator)(&self.items[i], &self.items[self.parent_idx(i)]) {
+                    self.items.swap(i, i / 2);
+                    i = self.parent_idx(i);
+                } else { break; }
+            }
+        }
+
+        self.count += 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +73,11 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		let mut smallest = idx;
+        loop {
+            if self.count >= smallest && self.count < smallest * 2 { return smallest; }
+            else { smallest *= 2; }
+        }
     }
 }
 
@@ -79,13 +98,31 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Copy
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.count == 0 { return None; }
+
+        let smallest_idx = self.smallest_child_idx(1);
+        let ret = Some(self.items[1]);
+
+        self.items[1] = self.items[self.count];
+        self.items.remove(self.count);
+        self.count -= 1;
+
+        for mut i in 0..self.items.len() {
+            while i > 1 {
+                if (self.comparator)(&self.items[i], &self.items[self.parent_idx(i)]) {
+                    self.items.swap(i, i / 2);
+                    i = self.parent_idx(i);
+                } else { break; }
+            }
+        }
+
+		ret
     }
 }
 
